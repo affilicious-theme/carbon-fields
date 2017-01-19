@@ -139,4 +139,3 @@ export default compose(
 		handleRemoveClick,
 	})
 )(ComplexGroup);
-

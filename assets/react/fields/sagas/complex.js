@@ -10,8 +10,7 @@ import { find, findIndex, merge, keyBy, reject } from 'lodash';
  */
 import { getAll, getFieldById } from 'fields/selectors';
 import { addComplexGroupIdentifiers, flattenComplexGroupFields, restoreField } from 'fields/helpers';
-import { updateField, addFields, removeFields, setUI, addComplexGroup, cloneComplexGroup } from 'fields/actions';
-import { REMOVE_COMPLEX_GROUP } from 'fields/actions';
+import { addFields, removeFields, updateField, setUI, addComplexGroup, cloneComplexGroup, removeComplexGroup } from 'fields/actions';
 
 /**
  * Prepare a clone or new instance of the specified group.
@@ -22,12 +21,12 @@ import { REMOVE_COMPLEX_GROUP } from 'fields/actions';
  * @return {void}
  */
 export function* workerAddOrCloneComplexGroup({ type, payload }) {
-	const field = yield select(getFieldById, payload.id || payload.fieldId);
+	const field = yield select(getFieldById, payload.fieldId);
 	let blueprint, group, fields;
 
 	// Get the group that will be used as starting point.
 	if (type === addComplexGroup.toString()) {
-		blueprint = yield call(find, field.groups, { name: payload.group });
+		blueprint = yield call(find, field.groups, { name: payload.groupName });
 	} else if (type === cloneComplexGroup.toString()) {
 		blueprint = yield call(find, field.value, { id: payload.groupId });
 	}
@@ -95,12 +94,12 @@ function collectFieldIds(roots, all, accumulator) {
  */
 export function* workerRemoveComplexGroup({ payload }) {
 	const all = yield select(getAll);
-	const field = yield select(getFieldById, payload.id);
-	const group = yield call(find, field.value, { id: payload.group });
+	const field = yield select(getFieldById, payload.fieldId);
+	const group = yield call(find, field.value, { id: payload.groupId });
 	const groupFields = yield call(collectFieldIds, group.fields, all, []);
 
 	if (field.ui.is_tabbed) {
-		const groupIndex = yield call(findIndex, field.value, { id: payload.group });
+		const groupIndex = yield call(findIndex, field.value, { id: payload.groupId });
 		let nextTabId = null;
 
 		if (field.value.length > 1) {
@@ -132,6 +131,6 @@ export default function* foreman() {
 	yield [
 		takeEvery(addComplexGroup.toString(), workerAddOrCloneComplexGroup),
 		takeEvery(cloneComplexGroup.toString(), workerAddOrCloneComplexGroup),
-		takeEvery(REMOVE_COMPLEX_GROUP, workerRemoveComplexGroup),
+		takeEvery(removeComplexGroup.toString(), workerRemoveComplexGroup),
 	];
 }
