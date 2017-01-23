@@ -13,9 +13,8 @@
     "test": "jest --config .jest",
     "postcss": "postcss -c postcss.config.js -w",
     "webpack:vendor": "webpack --config webpack.vendor.js",
-    "webpack:app": "webpack --config webpack.app.js",
-    "webpack:boot": "webpack --config webpack.boot.js",
-    "react": "npm run webpack:vendor && concurrently --kill-others --prefix \"[{name}]\" --names \"Webpack:App,Webpack:Boot\" -c \"bgBlue.bold,bgYellow.bold,bgGreen.bold\" \"npm run webpack:app -- -w\" \"npm run webpack:boot -- -w\""
+    "webpack:app": "npm run webpack:vendor && webpack --config webpack.app.js -w",
+    "webpack:boot": "webpack --config webpack.boot.js -w"
   },
   "repository": {
     "type": "git",
@@ -40,7 +39,6 @@
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-0": "^6.16.0",
-    "concurrently": "^3.1.0",
     "cssnano": "^3.8.0",
     "enzyme": "^2.7.0",
     "expose-loader": "^0.7.1",
